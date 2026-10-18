@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080c16">
+  <meta name="description" content="CodeShield interactive Hamming code and error correction lab.">
+  <title>CodeShield | Hamming Code Lab</title>
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="glow glow-a"></div><div class="glow glow-b"></div>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-icon">⬡</span><span>Code<span>Shield</span><small>CODING THEORY LAB</small></span></a>
+    <div class="top-status"><i></i> LOCAL SIMULATOR <b>v1.1</b></div>
+  </header>
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow"><i></i> ERROR CONTROL · INTERACTIVE LAB</div>
+      <h1>Make errors visible.<br><span>Make data resilient.</span></h1>
+      <p>Explore Hamming (7,4), SECDED, noisy-channel benchmarks and adaptive code selection in one interactive coding theory lab.</p>
+      <div class="tags"><span>● Hamming (7,4)</span><span>● Even parity</span><span>● Single-error correction</span></div>
+    </section>
+
+    <div class="section-head"><div><label>01 / ENCODE</label><h2>Message encoder</h2></div><small>4 information bits → 7-bit codeword</small></div>
+    <section class="panel encoder">
+      <div>
+        <label class="field-label" for="data-input">YOUR 4-BIT MESSAGE</label>
+        <div class="input-row"><input id="data-input" value="1011" maxlength="4" inputmode="numeric" autocomplete="off"><button id="encode-btn" class="btn primary">Encode message <span>↗</span></button></div>
+        <p id="input-help" class="help">Enter exactly four binary digits (0 or 1).</p>
+      </div>
+      <div class="encoded">
+        <div class="micro-row"><label>GENERATED CODEWORD</label><span class="ready"><i></i> READY</span></div>
+        <div id="encoded-bits" class="bits" aria-label="Encoded codeword"></div>
+        <div class="legend"><span><i class="parity-key"></i> Parity bit</span><span><i class="data-key"></i> Data bit</span></div>
+      </div>
+    </section>
+
+    <div class="section-head spaced"><div><label>02 / TRANSMIT</label><h2>Simulate a noisy channel</h2></div><small>Flip bits to simulate transmission errors</small></div>
+    <section class="panel channel">
+      <div class="channel-head"><div><label class="field-label">RECEIVED CODEWORD</label><p class="muted">Select a bit below to toggle it between 0 and 1.</p></div><div class="actions"><button id="random-error-btn" class="btn secondary">⚡ Inject random error</button><button id="reset-btn" class="btn ghost">Reset</button></div></div>
+      <div id="received-bits" class="bits received" aria-label="Received codeword bits"></div>
+      <div class="channel-footer"><span id="error-count" class="pill clear">0 bit flips</span><span id="channel-message">Channel is clear. No bits have been changed.</span></div>
+    </section>
+
+    <div class="section-head spaced"><div><label>03 / DECODE</label><h2>Receiver diagnostics</h2></div><button id="decode-btn" class="btn primary">Calculate syndrome <span>→</span></button></div>
+    <div class="diagnostics">
+      <section class="panel diagnostic">
+        <div class="panel-title"><div><label>PARITY CHECK</label><h3>Syndrome analysis</h3></div><span class="tile-icon">⌁</span></div>
+        <p class="muted">Each check XORs the bit positions covered by one parity equation.</p>
+        <div class="syndromes">
+          <div><b>S₁</b><code>r₁ ⊕ r₃ ⊕ r₅ ⊕ r₇</code><strong id="s1-value">—</strong></div>
+          <div><b>S₂</b><code>r₂ ⊕ r₃ ⊕ r₆ ⊕ r₇</code><strong id="s2-value">—</strong></div>
+          <div><b>S₄</b><code>r₄ ⊕ r₅ ⊕ r₆ ⊕ r₇</code><strong id="s4-value">—</strong></div>
+        </div>
+        <div class="syndrome-result"><span>SYNDROME VALUE</span><strong id="syndrome-value">—</strong><small id="syndrome-binary">Awaiting decode</small></div>
+      </section>
+      <section class="panel diagnostic">
+        <div class="panel-title"><div><label>RECOVERY</label><h3>Decoded message</h3></div><span class="tile-icon">↻</span></div>
+        <p class="muted">The decoder uses the syndrome to locate a single-bit error, if present.</p>
+        <div id="recovery-status" class="recovery-status"><span class="status-symbol">…</span><span><b>Ready to decode</b><small>Run syndrome analysis to inspect the received word.</small></span></div>
+        <div class="recovered"><label>RECOVERED 4-BIT DATA</label><strong id="recovered-data">----</strong><small id="recovered-caption">No result yet</small></div>
+        <div class="corrected"><span>Corrected codeword</span><strong id="corrected-codeword">-------</strong></div>
+      </section>
+    </div>
+
+    <section class="panel learn">
+      <div class="panel-title"><div><label>LEARN THE LOGIC</label><h3>How the parity bits work</h3></div><span class="tile-icon">∑</span></div>
+      <div class="parity-cards">
+        <article><b>P₁</b><code>p₁ = d₁ ⊕ d₂ ⊕ d₄</code><small>Checks positions 1, 3, 5, 7</small></article>
+        <article><b>P₂</b><code>p₂ = d₁ ⊕ d₃ ⊕ d₄</code><small>Checks positions 2, 3, 6, 7</small></article>
+        <article><b>P₄</b><code>p₄ = d₂ ⊕ d₃ ⊕ d₄</code><small>Checks positions 4, 5, 6, 7</small></article>
+      </div>
+      <div class="note"><span>ⓘ</span><p><b>Important limitation:</b> Hamming (7,4) corrects single-bit errors. Multiple errors may be miscorrected, so a non-zero syndrome does not prove that exactly one bit is wrong.</p></div>
+    </section>
+
+    <div class="section-head spaced"><div><label>04 / RESEARCH BENCH</label><h2>Noisy-channel benchmark</h2></div><small>Compare reliability vs. redundancy</small></div>
+    <section class="panel bench-panel">
+      <div class="bench-intro"><div><h3>Binary Symmetric Channel (BSC)</h3><p class="muted">Each transmitted bit independently flips with probability p. The same information frames are tested across all coding schemes.</p></div><span class="bench-badge">SEEDED EXPERIMENT</span></div>
+      <div class="bench-controls">
+        <div class="control-group"><label for="error-probability">BIT ERROR PROBABILITY <strong id="p-value">2.0%</strong></label><input id="error-probability" type="range" min="0" max="20" value="2" step="0.5"></div>
+        <div class="control-group"><label for="frame-count">NUMBER OF FRAMES</label><select id="frame-count"><option value="250">250 frames</option><option value="1000" selected>1,000 frames</option><option value="5000">5,000 frames</option><option value="10000">10,000 frames</option></select></div>
+        <div class="control-group"><label for="random-seed">RANDOM SEED</label><input id="random-seed" class="seed-input" type="number" min="1" max="2147483647" value="42"></div>
+        <button id="run-benchmark" class="btn primary run-btn">Run experiment <span>↗</span></button>
+      </div>
+      <div id="benchmark-status" class="bench-status">Ready. Choose channel settings and run the experiment.</div>
+      <div class="bench-table-wrap">
+        <table class="bench-table">
+          <thead><tr><th>CODING SCHEME</th><th>RATE</th><th>OVERHEAD</th><th>PRE-BER</th><th>POST-BER</th><th>FRAME ERROR</th></tr></thead>
+          <tbody id="benchmark-results"><tr><td colspan="6" class="empty-cell">Run an experiment to populate the results.</td></tr></tbody>
+        </table>
+      </div>
+      <div class="chart-heading"><div><label>POST-DECODING BIT ERROR RATE</label><p class="muted">Lower is better. Results are empirical estimates from the selected finite trial.</p></div><span class="chart-unit">BER</span></div>
+      <div class="chart-wrap"><canvas id="ber-chart" height="180" aria-label="Post-decoding bit error rate chart"></canvas></div>
+      <div class="note"><span>ⓘ</span><p><b>Interpretation:</b> results depend on the selected seed, frame count, and channel probability. Zero observed errors in a finite experiment does not prove the true BER is zero. Hamming (7,4) can miscorrect multiple errors.</p></div>
+      <button id="export-results" class="btn secondary export-btn" disabled>↓ Export results as CSV</button>
+    </section>
+
+    <div class="section-head spaced"><div><label>05 / RESEARCH CONTRIBUTION</label><h2>Adaptive code selector</h2></div><small>Choose reliability within an overhead budget</small></div>
+    <section class="panel selector-panel">
+      <div class="bench-intro"><div><h3>Constraint-aware recommendation</h3><p class="muted">The selector runs a reproducible BSC experiment, filters schemes by your measured frame-error target and redundancy budget, then recommends the eligible scheme with the lowest overhead.</p></div><span class="bench-badge">EXPLAINABLE SELECTOR</span></div>
+      <div class="selector-controls">
+        <div class="control-group"><label for="selector-p">CHANNEL BIT ERROR PROBABILITY</label><select id="selector-p"><option value="0.5">0.5%</option><option value="1">1.0%</option><option value="2" selected>2.0%</option><option value="5">5.0%</option><option value="10">10.0%</option><option value="15">15.0%</option></select></div>
+        <div class="control-group"><label for="selector-frames">EXPERIMENT SIZE</label><select id="selector-frames"><option value="1000">1,000 frames</option><option value="5000" selected>5,000 frames</option><option value="10000">10,000 frames</option></select></div>
+        <div class="control-group"><label for="selector-seed">RANDOM SEED</label><input id="selector-seed" class="seed-input" type="number" min="1" max="2147483647" value="2026"></div>
+        <div class="control-group"><label for="selector-fer">MAXIMUM OBSERVED FER <strong id="selector-fer-label">1.0%</strong></label><input id="selector-fer" type="range" min="0" max="20" value="1" step="0.5"></div>
+        <div class="control-group"><label for="selector-overhead">MAXIMUM REDUNDANCY <strong id="selector-overhead-label">100%</strong></label><input id="selector-overhead" type="range" min="0" max="200" value="100" step="25"></div>
+        <button id="run-selector" class="btn primary run-btn">Recommend a code <span>↗</span></button>
+      </div>
+      <div id="selector-status" class="bench-status">Set constraints and run the selector to compare candidate codes.</div>
+      <p id="selector-detail" class="selector-detail">Recommendation will include the measured FER, post-decoding BER, code rate and reproducible experiment settings.</p>
+      <div id="selector-candidates" class="selector-candidates" aria-live="polite"></div>
+      <div class="note"><span>ⓘ</span><p><b>Research limitation:</b> this is an empirical prototype, not a formal guarantee. A scheme may appear to meet a target in a finite sample and fail under other seeds or real channels. Validate across multiple seeds and channel probabilities before drawing conclusions.</p></div>
+    </section>
+
+    <div class="section-head spaced"><div><label>06 / ADVANCED CODING</label><h2>Burst errors & SECDED</h2></div><small>Compare single-error correction and double-error detection</small></div>
+    <section class="panel burst-panel">
+      <div class="bench-intro"><div><h3>Extended Hamming (8,4)</h3><p class="muted">Adds an overall parity bit to Hamming (7,4), enabling SECDED: single-error correction and double-error detection.</p></div><span class="bench-badge">SECDED</span></div>
+      <div class="burst-controls">
+        <div class="control-group"><label for="burst-data">4-BIT MESSAGE</label><input id="burst-data" class="seed-input" type="text" maxlength="4" value="1011" inputmode="numeric"></div>
+        <div class="control-group"><label for="burst-start">BURST START POSITION</label><select id="burst-start"></select></div>
+        <div class="control-group"><label for="burst-length">BURST LENGTH</label><select id="burst-length"><option value="1">1 bit</option><option value="2" selected>2 bits</option><option value="3">3 bits</option><option value="4">4 bits</option></select></div>
+        <button id="run-burst" class="btn primary run-btn">Inject burst <span>↗</span></button>
+      </div>
+      <div class="burst-word-block"><label>EXTENDED CODEWORD · 8 BITS</label><div id="extended-bits" class="bits"></div><div class="burst-caption">Positions 1–7 are Hamming bits; position 8 is overall parity.</div></div>
+      <div id="burst-result" class="burst-result">Choose a message and inject a burst to inspect SECDED behaviour.</div>
+      <div class="burst-explainer"><strong>Why this matters</strong><p>Hamming (7,4) always tries to correct a non-zero syndrome as if it came from one flipped bit. Extended Hamming uses the overall parity check to distinguish a single-bit error from a double-bit error. Three or more errors are not guaranteed to be classified correctly.</p></div>
+    </section>
+
+    <footer><b>CodeShield</b><span>Built to explore the mathematics of reliable communication.</span><small><i></i> ALL PROCESSING LOCAL</small></footer>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+  </script>
+  <script type="module" src="./js/background.js"></script>
+  <script type="module" src="./js/app.js"></script>
+  <script type="module" src="./js/burst-ui.js"></script>
+  <script type="module" src="./js/selector-ui.js"></script>
+</body>
+</html>
